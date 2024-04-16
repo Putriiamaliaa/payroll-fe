@@ -73,7 +73,7 @@ const MyForm = () => {
         console.log(JSON.stringify(response.data));
         toast.success('Success operation', {
           position: "top-right",
-          autoClose: 5000,
+          autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -88,7 +88,7 @@ const MyForm = () => {
         console.log(error);
         toast.error(error.response.data.message, {
           position: "top-right",
-          autoClose: 5000,
+          autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -179,7 +179,7 @@ const MyForm = () => {
             console.log(JSON.stringify(response.data));
             toast.success('Data has been deleted.', {
               position: "top-right",
-              autoClose: 5000,
+              autoClose: 3000,
               hideProgressBar: false,
               closeOnClick: true,
               pauseOnHover: true,
@@ -419,21 +419,22 @@ const MyForm = () => {
           >
 
             <button
-              className="bg-blue-500 text-sm text-white px-4 py-2 rounded-md mr-1"
+              className="bg-blue-400 text-sm text-white px-4 py-2 rounded-md mr-1"
             > Export </button>
 
           </DownloadTableExcel>
           <button
             onClick={openModal}
-            className="bg-blue-500 text-sm text-white px-4 py-2 rounded-md"
+            className="bg-blue-400 text-sm text-white px-4 py-2 rounded-md"
           >
             + Add Data
           </button>
         </div>
       </div>
-      <div className="flex">
-        <div class="p-4 bg-white rounded">
-          <table className="min-w-full divide-y divide-gray-200" ref={tableRef}>
+      <div className="flex justify-center">
+  <div className="w-full">
+    <div className="overflow-x-auto">
+      <table className="w-full table-auto bg-white rounded" ref={tableRef}>
             <thead className="bg-blue-200">
               <tr>
                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -496,14 +497,16 @@ const MyForm = () => {
             </tbody>
           </table>
         </div>
+        </div>
+
       </div>
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
-        rtl={false}
+        rtl={true}
         pauseOnFocusLoss
         draggable
         pauseOnHover
