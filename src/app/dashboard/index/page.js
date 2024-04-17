@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 const MyForm = () => {
   const router = useRouter()
   const token = JSON.parse(localStorage.getItem('user')).access_token;
-  const PageSize = 5; // Number of items per page
+  const PageSizeOptions = [5, 10, 20]; // Options for items per page
 
   console.log(token);
 
@@ -232,17 +232,29 @@ const MyForm = () => {
   );
 
   const tableRef = useRef(null);
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(PageSizeOptions[0]); // Default to the first option
 
   // Function to handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
+  // Function to handle items per page change
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
   // Pagination logic
-  const indexOfLastItem = currentPage * PageSize;
-  const indexOfFirstItem = indexOfLastItem - PageSize;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
 
   return (
     <section>
@@ -397,12 +409,6 @@ const MyForm = () => {
 
               {/* Modal Footer */}
               <div className="mt-6">
-                {/* <button
-                  onClick={closeModal}
-                  className="bg-gray-500 text-whites  px-4 py-2 rounded-md"
-                >
-                  Close Modal
-                </button> */}
               </div>
             </div>
           </div>
@@ -453,38 +459,38 @@ const MyForm = () => {
             <table className="w-full table-auto bg-white rounded" ref={tableRef}>
               <tbody className="divide-y divide-gray-200">
                 <tr className="p-10 mt-10">
-                  <td scope="col" className="py-5 text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="py-5 text-center font-bold text-gray-200 tracking-wider">
                     Action
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Nama Karyawan
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Periode
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-300 tracking-wider">
                     Jumlah Penghasilan
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Kode PPH21
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     PTKP tahunan
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Dasar pengenaan pajak
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Tarif
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Nominal PPH21
                   </td>
-                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                  <td scope="col" className="text-center font-bold text-gray-200 tracking-wider">
                     Nominal Takehomepay
                   </td>
                 </tr>
-                {filteredData.map((item, index) => (
+                {currentItems.map((item, index) => (
                   <tr key={item.id}>
                     <td className="text-center pl-3 py-3">
                       <button className="bg-blue-400 text-whites  mr-1 py-1 px-2 rounded" onClick={() => editData(item.id)}>Edit</button>
@@ -504,17 +510,32 @@ const MyForm = () => {
               </tbody>
             </table>
             {/* Pagination */}
-            <div className="flex justify-center mt-4">
-              {[...Array(Math.ceil(filteredData.length / PageSize)).keys()].map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page + 1)}
-                  className={`mx-1 px-3 py-1 rounded ${currentPage === page + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
-                    }`}
-                >
-                  {page + 1}
-                </button>
-              ))}
+            <div className="flex mt-4">
+              {/* Items per page dropdown */}
+              <div className='w-1/2 text-left'>
+                <select className='mr-2 bg-gray-200 rounded' id="itemsPerPage" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                  {PageSizeOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+                Showing {currentPage} to {totalPages} of records
+              </div>
+              <div className='w-1/2 text-right'>
+                <button className={`mx-1 px-3 py-1 rounded bg-white text-gray-200`}>{'<'}</button>
+                {[...Array(totalPages).keys()].map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page + 1)}
+                    className={`mx-1 px-3 py-1 rounded ${currentPage === page + 1 ? 'bg-blue-500 text-whites' : 'bg-gray-300 text-gray-700'
+                      }`}
+                  >
+                    {page + 1}
+                  </button>
+                ))}
+                <button className={`mx-1 px-3 py-1 rounded bg-white text-gray-200`}>{'>'}</button>
+
+              </div>
+
             </div>
 
           </div>
