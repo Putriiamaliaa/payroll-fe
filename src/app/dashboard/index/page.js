@@ -1,18 +1,19 @@
 'use client'
 require('dotenv').config()
-
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faTrash, faPencil } from '@fortawesome/free-solid-svg-icons';
 import { DownloadTableExcel } from 'react-export-table-to-excel';
 import Swal from 'sweetalert2'
+import { useRouter } from "next/navigation";
+
 
 const MyForm = () => {
-  // const token = JSON.parse(localStorage.getItem('user')).token;
+  const router = useRouter()
   const token = JSON.parse(localStorage.getItem('user')).access_token;
+  const PageSize = 5; // Number of items per page
+
   console.log(token);
 
   const [data, setData] = useState([]);
@@ -52,7 +53,7 @@ const MyForm = () => {
     e.preventDefault();
     // Handle form submission here
     console.log('Form submitted:', formData);
-    let url =  `http://localhost:3003/payroll`
+    let url = `http://localhost:3003/payroll`
     if (submitMethod == 'patch') {
       url = `http://localhost:3003/payroll/${idEdit}`
     }
@@ -121,8 +122,10 @@ const MyForm = () => {
 
     try {
       //save edit edit
-      setIdEdit(id)
-      setsubmitMethod('patch');
+      // setIdEdit(id)
+      localStorage.setItem('idEdit', id);
+      localStorage.setItem('submitMethod', 'patch');
+      // setsubmitMethod('patch');
 
       const response = await axios.get(`http://localhost:3003/payroll/${id}`, {
         headers: {
@@ -229,6 +232,17 @@ const MyForm = () => {
   );
 
   const tableRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Function to handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * PageSize;
+  const indexOfFirstItem = indexOfLastItem - PageSize;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <section>
@@ -294,7 +308,7 @@ const MyForm = () => {
                       onChange={handleChange}
                       value={formData.kode_pph21}
                     >
-                      
+
                       <option value="21-100-01 Pegawai Tetap">21-100-01 Pegawai Tetap</option>
                       <option value="21-100-07 Tenaga Ahli">21-100-07 Tenaga Ahli</option>
                     </select>
@@ -314,7 +328,7 @@ const MyForm = () => {
                   </div>
                   <div className="mb-4">
                     <label htmlFor="dasar_pengenaan_pajak" className="block text-gray-700 text-sm font-bold mb-2">
-                      Dasar pengenaan pajak
+                      Dasar Pengenaan Pajak
                     </label>
                     <input
                       type="number"
@@ -341,7 +355,7 @@ const MyForm = () => {
                   </div>
                   <div className="mb-4">
                     <label htmlFor="nominal_pph21" className="block text-gray-700 text-sm font-bold mb-2">
-                      Nominal pph21
+                      Nominal PPH21
                     </label>
                     <input
                       type="number"
@@ -368,13 +382,13 @@ const MyForm = () => {
 
                   <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+                    className="bg-blue-500 text-whites  px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
                   >
                     Submit
                   </button>
                   <button
                     onClick={closeModal}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md ml-2"
+                    className="bg-gray-500 text-whites  px-4 py-2 rounded-md ml-2"
                   >
                     Cancel
                   </button>
@@ -385,7 +399,7 @@ const MyForm = () => {
               <div className="mt-6">
                 {/* <button
                   onClick={closeModal}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                  className="bg-gray-500 text-whites  px-4 py-2 rounded-md"
                 >
                   Close Modal
                 </button> */}
@@ -403,7 +417,7 @@ const MyForm = () => {
         <div class="w-1/2 font-bold text-lg">
           <input
             type="text"
-            className="bg-gray-50 border text-sm ring-primary-600 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 w-1/2 border text-sm ring-primary-600 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
@@ -418,85 +432,92 @@ const MyForm = () => {
             currentTableRef={tableRef.current}
           >
 
-            <button
-              className="bg-blue-400 text-sm text-white px-4 py-2 rounded-md mr-1"
-            > Export </button>
+            {/* <button
+              className="bg-blue-400 text-sm text-whites  px-4 py-2 rounded-md mr-1"
+            > Export </button> */}
 
           </DownloadTableExcel>
           <button
-            onClick={openModal}
-            className="bg-blue-400 text-sm text-white px-4 py-2 rounded-md"
+            onClick={() => {
+              router.push('/dashboard/add')
+            }}
+            className="bg-blue-400 text-sm text-whites  px-4 py-2 rounded-md"
           >
             + Add Data
           </button>
         </div>
       </div>
       <div className="flex justify-center">
-  <div className="w-full">
-    <div className="overflow-x-auto">
-      <table className="w-full table-auto bg-white rounded" ref={tableRef}>
-            <thead className="bg-blue-200">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  No
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nama Karyawan
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Periode
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Jumlah penghasilan
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kode pph21
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ptkp tahunan
-                </th>
-                <th scope="col" className="py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dasar pengenaan pajak
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tarif
-                </th>
-                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nominal pph21
-                </th>
-                <th scope="col" className="py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nominal takehomepay
-                </th>
-              </tr>
-            </thead>
-
-
-
-            <tbody className="divide-y divide-gray-200">
-              {filteredData.map((item, index) => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap flex justify-center">{index + 1}</td>
-                  <td className="text-center">
-                    <button className="bg-blue-400 text-white font-bold mr-1 py-1 px-2 rounded text-sm" onClick={() => editData(item.id)}><FontAwesomeIcon icon={faPencil} /></button>
-                    <button className="bg-red-500 text-white font-bold py-1 px-2 rounded text-sm" onClick={() => deleteData(item.id)}><FontAwesomeIcon icon={faTrash} /></button>
+        <div className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto bg-white rounded" ref={tableRef}>
+              <tbody className="divide-y divide-gray-200">
+                <tr className="p-10 mt-10">
+                  <td scope="col" className="py-5 text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Action
                   </td>
-                  <td>{item.nama_karyawan}</td>
-                  <td>{item.periode}</td>
-                  <td className="text-right px-6 py-3 ">Rp{item.jumlah_penghasilan.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
-                  <td className="text-center">{item.kode_pph21}</td>
-                  <td className="text-right px-6 py-3 ">Rp{item.ptkp_tahunan.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
-                  <td className="text-right px-6 py-3 ">Rp{item.dasar_pengenaan_pajak.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
-                  <td className="text-right px-6 py-3 ">Rp{item.tarif.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
-                  <td className="text-right px-6 py-3 ">Rp{item.nominal_pph21.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
-                  <td className="text-right px-6 py-3 ">Rp{item.nominal_takehomepay.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Nama Karyawan
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Periode
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Jumlah Penghasilan
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Kode PPH21
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    PTKP tahunan
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Dasar pengenaan pajak
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Tarif
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Nominal PPH21
+                  </td>
+                  <td scope="col" className="text-center font-bold text-gray-500 text-whites tracking-wider">
+                    Nominal Takehomepay
+                  </td>
                 </tr>
+                {filteredData.map((item, index) => (
+                  <tr key={item.id}>
+                    <td className="text-center pl-3 py-3">
+                      <button className="bg-blue-400 text-whites  mr-1 py-1 px-2 rounded" onClick={() => editData(item.id)}>Edit</button>
+                      <button className="bg-red-500 text-whites  py-1 px-2 rounded" onClick={() => deleteData(item.id)}>Hapus</button>
+                    </td>
+                    <td className="pl-3 py-3">{item.nama_karyawan}</td>
+                    <td className="text-center pl-3 py-3">{item.periode}</td>
+                    <td className="text-right px-6 py-3 ">Rp{item.jumlah_penghasilan.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                    <td className="text-center">{item.kode_pph21}</td>
+                    <td className="text-right px-3 py-3 ">Rp{item.ptkp_tahunan.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                    <td className="text-right px-3 py-3 ">Rp{item.dasar_pengenaan_pajak.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                    <td className="text-right px-3 py-3 ">Rp{item.tarif.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                    <td className="text-right px-3 py-3 ">Rp{item.nominal_pph21.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                    <td className="text-right px-3 py-3 ">Rp{item.nominal_takehomepay.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(',', '.')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Pagination */}
+            <div className="flex justify-center mt-4">
+              {[...Array(Math.ceil(filteredData.length / PageSize)).keys()].map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page + 1)}
+                  className={`mx-1 px-3 py-1 rounded ${currentPage === page + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
+                    }`}
+                >
+                  {page + 1}
+                </button>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+
+          </div>
         </div>
 
       </div>

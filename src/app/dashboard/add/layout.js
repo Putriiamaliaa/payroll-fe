@@ -1,6 +1,6 @@
 import { Inter } from 'next/font/google'
-import Header from '../../components/Header'
-import Sidebar from '../../components/Sidebar'
+import Header from '../../../components/Header'
+import Sidebar from '../../../components/Sidebar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -13,8 +13,7 @@ export default function DashboardLayout({ children }) {
     <html lang="en">
       <body className={`font-sans ${inter.className}`}>
         <Header />
-        <div className="flex flex-col md:flex-row">
-          {/* <Sidebar /> */}
+        <div className="flex flex-col md:flex-row bg-gray-100">
           <main className="flex-1 p-4 min-h-screen">
             {children}
           </main>
